@@ -1,6 +1,7 @@
 import yaml
 from sqlalchemy import create_engine, inspect
 
+
 class DatabaseConnector():
 
     @staticmethod
@@ -46,7 +47,7 @@ class DatabaseConnector():
         # Create SQLAlchemy engine
         engine = create_engine(db_url)
         return engine
-    
+
     def list_db_tables(self):
         engine = self.init_db_engine()
         inspector = inspect(engine)
