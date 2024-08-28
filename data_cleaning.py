@@ -10,7 +10,7 @@ class DataCleaning():
         # Drop column
         df = df.drop(columns=['index'])
 
-        # Drop rows with NULL values
+        # Drop rows with null values
         df.dropna(inplace=True)
 
         # Check DOB format
@@ -38,7 +38,7 @@ class DataCleaning():
             'United States': 'US',
             'Germany': 'DE'
         }
-        # Check if the country_code matches the expected code from the dictionary
+        # Check if the country code matches the expected code from the dictionary
         df['correct_country_code'] = df['country'].map(country_to_code)
         df['is_match'] = df['country_code'] == df['correct_country_code']
         # Correct mismatches
@@ -68,11 +68,11 @@ class DataCleaning():
     def clean_card_data(self, df):
         df = df.copy()
 
-        # Drop rows with NULL values
+        # Drop rows with null values
         df.dropna(inplace=True)
         
         # Check expiry date format
-        # Attempt to convert 'exp_date' to datetime using MM/YY format, and keep original if valid
+        # Convert expiry date to datetime using mm/yy format, and keep original if valid
         def convert_exp_date(date_str):
             try:
                 return pd.to_datetime(date_str, format='%m/%y').strftime('%m/%y')
@@ -115,7 +115,7 @@ class DataCleaning():
         # Drop columns
         df = df.drop(columns=['index', 'lat'])
 
-        # Drop rows with NULL values
+        # Drop rows with null values
         df.dropna(inplace=True)
 
         # Change column types to numeric
@@ -162,4 +162,114 @@ class DataCleaning():
         # Check no extra nulls have been produced
         df.dropna(inplace=True)
         
+        return df
+    
+
+    def convert_product_weights(self, df):
+        def convert_weight(weight):
+            # Convert to lowercase and remove spaces
+            weight = str(weight).lower().replace(" ", "")
+            # Handle different unit conversions
+            if 'kg' in weight:
+                return float(re.sub(r'[^\d.]+', '', weight))
+            elif 'g' in weight:
+                return float(re.sub(r'[^\d.]+', '', weight)) / 1000
+            elif 'ml' in weight:
+                return float(re.sub(r'[^\d.]+', '', weight)) / 1000
+            elif 'l' in weight:
+                return float(re.sub(r'[^\d.]+', '', weight))
+            elif 'oz' in weight:
+                return float(re.sub(r'[^\d.]+', '', weight)) * 0.0283495
+            else:
+                return None
+        # Apply the conversion to the weight column
+        df['weight'] = df['weight'].apply(convert_weight)
+        return df
+    
+
+    def clean_product_data(self, df):
+        df = df.copy()
+
+        # Drop column
+        df = df.drop(columns=['Unnamed: 0'])
+
+        # Drop rows with null values
+        df.dropna(inplace=True)
+
+        # Change column names to lower case
+        df.columns = [col.lower() for col in df.columns]
+
+        # Remove invalid category
+        valid_category = ['diy', 'health-and-beauty', 'pets', 'food-and-drink', 'sports-and-leisure', 'homeware', 'toys-and-games']
+        df = df[df['category'].isin(valid_category)]
+
+        # Remove invalid removed and correct available spelling
+        valid_removed = ['Removed', 'Still_avaliable']
+        df = df[df['removed'].isin(valid_removed)]
+        df['removed'] = df['removed'].str.replace('Still_avaliable', 'Still_available')
+
+        # Check price format
+        df['product_price'] = df['product_price'].astype(str)
+        df['numeric_part'] = df['product_price'].str.extract(r'(\d+\.\d{2})')
+        df['product_price'] = '£' + df['numeric_part']
+        df.drop(columns=['numeric_part'], inplace=True)
+
+        # Check date added format
+        df['date_added'] = pd.to_datetime(df['date_added'], errors='coerce')
+        # Check for invalid date entries that were converted to NaT
+        if df['date_added'].isna().any():
+            df = df.dropna(subset=['date_added'])
+        # Reformat to yyyy-mm-dd
+        df['date_added'] = df['date_added'].dt.strftime('%Y-%m-%d')
+
+        # Check no extra nulls have been produced
+        df.dropna(inplace=True)
+
+        return df
+    
+
+    def clean_order_data(self, df):
+        df = df.copy()
+
+        # Drop columns
+        df = df.drop(columns=['first_name', 'last_name', '1', 'level_0', 'index'])
+
+        # Drop rows with null values
+        df.dropna(inplace=True)
+
+        return df
+    
+
+    def clean_date_data(self, df):
+        df = df.copy()
+
+        # Drop rows with null values
+        df.dropna(inplace=True)
+
+        # Create a single date column
+        df['year'] = pd.to_numeric(df['year'], errors='coerce')
+        df['month'] = pd.to_numeric(df['month'], errors='coerce')
+        df['day'] = pd.to_numeric(df['day'], errors='coerce')
+        # Combine into a single date column
+        df['date'] = pd.to_datetime(df[['year', 'month', 'day']], errors='coerce')
+        # Check for invalid date entries that were converted to NaT
+        if df['date'].isna().any():
+            df = df.dropna(subset=['date'])
+        # Reformat to yyyy-mm-dd
+        df['date'] = df['date'].dt.strftime('%Y-%m-%d')
+        # Drop columns
+        df = df.drop(columns=['day', 'month', 'year'])
+
+        # Check timestamp format
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+        # Extract just the time part and format it as hh:mm:ss
+        df['timestamp'] = df['timestamp'].dt.strftime('%H:%M:%S')
+
+        # Remove invalid time period
+        valid_category = ['Late_Hours', 'Morning', 'Midday', 'Evening']
+        df = df[df['time_period'].isin(valid_category)]
+
+        # Check no extra nulls have been produced
+        df.dropna(inplace=True)
+
         return df
