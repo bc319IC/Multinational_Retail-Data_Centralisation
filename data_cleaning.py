@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+import numpy as np
 
 
 class DataCleaning():
@@ -203,15 +204,18 @@ class DataCleaning():
         valid_category = ['diy', 'health-and-beauty', 'pets', 'food-and-drink', 'sports-and-leisure', 'homeware', 'toys-and-games']
         df = df[df['category'].isin(valid_category)]
 
-        # Remove invalid removed and correct available spelling
+        # Remove invalid still available and convert to bool
         valid_removed = ['Removed', 'Still_avaliable']
         df = df[df['removed'].isin(valid_removed)]
-        df['removed'] = df['removed'].str.replace('Still_avaliable', 'Still_available')
+        df['removed'] = df['removed'].str.replace('Still_avaliable', 'TRUE')
+        df['removed'] = df['removed'].str.replace('Removed', 'FALSE')
+        df['removed'] = df['removed'].astype(bool)
+        df = df.rename(columns={'removed': 'still_available'})
 
         # Check price format
         df['product_price'] = df['product_price'].astype(str)
         df['numeric_part'] = df['product_price'].str.extract(r'(\d+\.\d{2})')
-        df['product_price'] = '£' + df['numeric_part']
+        df['product_price'] = df['numeric_part']
         df.drop(columns=['numeric_part'], inplace=True)
 
         # Check date added format
@@ -224,6 +228,22 @@ class DataCleaning():
 
         # Check no extra nulls have been produced
         df.dropna(inplace=True)
+
+        # Add weight class column
+        # Define conditions and choices for weight_class
+        conditions = [
+            (df['weight'] < 2),
+            (df['weight'] >= 2) & (df['weight'] < 40),
+            (df['weight'] >= 40) & (df['weight'] < 140),
+            (df['weight'] >= 140)
+        ]
+        choices = [
+            'Light',
+            'Mid_Sized',
+            'Heavy',
+            'Truck_Required'
+        ]
+        df['weight_class'] = np.select(conditions, choices, default='Unknown')
 
         return df
     

@@ -54,5 +54,5 @@ class DatabaseConnector():
         tables = inspector.get_table_names()
         return tables
     
-    def upload_to_db(self, df, table_name, local_db_engine):
-        df.to_sql(table_name, local_db_engine, if_exists='replace', index=False)
+    def upload_to_db(self, df, table_name, local_db_engine, dtype_dic):
+        df.to_sql(table_name, local_db_engine, if_exists='replace', index=False, dtype=dtype_dic)
