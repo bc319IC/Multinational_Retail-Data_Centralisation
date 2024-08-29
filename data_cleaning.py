@@ -103,6 +103,9 @@ class DataCleaning():
         df['valid_card_number'] = df.apply(validate_card_number, axis=1)
         # Filter out rows where the card number length does not match the provider description
         df = df[df['valid_card_number']].drop(columns=['valid_card_number'])
+
+        # Filter rows where card number contains only digits
+        df = df[df['card_number'].apply(lambda x: isinstance(x, str) and x.isdigit())]
         
         # Check no extra nulls have been produced
         df.dropna(inplace=True)
