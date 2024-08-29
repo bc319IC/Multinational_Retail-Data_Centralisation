@@ -11,28 +11,24 @@ class DataCleaning():
         # Drop column
         df = df.drop(columns=['index'])
 
+        # Convert NULL strings to NaN
+        df.replace('NULL', np.nan, inplace=True)
         # Drop rows with null values
         df.dropna(inplace=True)
-
-        # Check DOB format
-        df['date_of_birth'] = pd.to_datetime(df['date_of_birth'], errors='coerce')
-        # Check for invalid date entries that were converted to NaT
-        if df['date_of_birth'].isna().any():
-            df = df.dropna(subset=['date_of_birth'])
-        # Reformat to yyyy-mm-dd
-        df['date_of_birth'] = df['date_of_birth'].dt.strftime('%Y-%m-%d')
-
+        
         # Check email format
-        email_pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        email_pattern = r'^[\w\.\+\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-.]+$'
+        # Fix repeated @ symbols
+        df['fixed_email_address'] = df['email_address'].str.replace(r'@@', '@', regex=True)
         # Validate emails
-        df['valid_email_address'] = df['email_address'].str.match(email_pattern)
+        df['valid_email_address'] = df['fixed_email_address'].str.match(email_pattern)
         # Drop rows with invalid emails
         df = df[df['valid_email_address']].drop(columns=['valid_email_address'])
-
+        
         # Remove invalid countries
         valid_countries = ['United Kingdom', 'Germany', 'United States']
         df = df[df['country'].isin(valid_countries)]
-
+        
         # Check correct country code
         country_to_code = {
             'United Kingdom': 'GB',
@@ -49,66 +45,26 @@ class DataCleaning():
         # Check phone number format
         df['phone_number'] = df['phone_number'].str.replace(r'\+44\(0\)|\+49\(0\)|\+44|\+49|\(0\)', '0', regex=True)
         df['phone_number'] = df['phone_number'].apply(lambda phone: re.sub(r'\D', '', phone))
-        df = df[df['phone_number'].str.len().between(10, 11)]
         df['phone_number'] = df['phone_number'].apply(lambda phone: phone[:5] + ' ' + phone[5:] if len(phone) > 5 else phone)
-
-        # Check join date format
-        df['join_date'] = pd.to_datetime(df['join_date'], errors='coerce')
-        # Check for invalid date entries that were converted to NaT
-        if df['join_date'].isna().any():
-            df = df.dropna(subset=['join_date'])
-        # Reformat to yyyy-mm-dd
-        df['join_date'] = df['join_date'].dt.strftime('%Y-%m-%d')
-
-        # Check no extra nulls have been produced
-        df.dropna(inplace=True)
-
+        
         return df
     
 
     def clean_card_data(self, df):
         df = df.copy()
 
+        # Convert NULL strings to NaN
+        df.replace('NULL', np.nan, inplace=True)
         # Drop rows with null values
         df.dropna(inplace=True)
-        
-        # Check expiry date format
-        # Convert expiry date to datetime using mm/yy format, and keep original if valid
-        def convert_exp_date(date_str):
-            try:
-                return pd.to_datetime(date_str, format='%m/%y').strftime('%m/%y')
-            except ValueError:
-                return pd.NaT  # Retain invalid entries as NaT
-        # Apply the conversion function
-        df['expiry_date'] = df['expiry_date'].apply(convert_exp_date)
-        
-        # Check date payment confirmed format
-        df['date_payment_confirmed'] = pd.to_datetime(df['date_payment_confirmed'], errors='coerce')
-        # Check for invalid date entries that were converted to NaT
-        if df['date_payment_confirmed'].isna().any():
-            df = df.dropna(subset=['date_payment_confirmed'])
-        # Reformat to yyyy-mm-dd
-        df['date_payment_confirmed'] = df['date_payment_confirmed'].dt.strftime('%Y-%m-%d')
-        
-        # Check card number length
-        # Extract digit information from the provider column
-        def validate_card_number(row):
-            match = re.search(r'(\d+)\s*digit', row['card_provider'])
-            if match:
-                expected_length = int(match.group(1))
-                actual_length = len(str(row['card_number']))
-                return expected_length == actual_length
-            return True  # If no digit is mentioned, assume it's valid
-        # Apply the validation to the DataFrame
-        df['valid_card_number'] = df.apply(validate_card_number, axis=1)
-        # Filter out rows where the card number length does not match the provider description
-        df = df[df['valid_card_number']].drop(columns=['valid_card_number'])
 
-        # Filter rows where card number contains only digits
-        df = df[df['card_number'].apply(lambda x: isinstance(x, str) and x.isdigit())]
-        
-        # Check no extra nulls have been produced
-        df.dropna(inplace=True)
+        # Check card number contains only digits
+        df['card_number'] = df['card_number'].str.replace(r'[^0-9]', '', regex=True)
+
+        # Remove invalid expiry dates
+        expiry_pattern = r'^\d{2}/\d{2}$'
+        valid_expiry_mask = df['expiry_date'].str.match(expiry_pattern, na=False)
+        df = df[valid_expiry_mask]
         
         return df
     
@@ -119,31 +75,14 @@ class DataCleaning():
         # Drop columns
         df = df.drop(columns=['index', 'lat'])
 
-        # Drop rows with null values
-        df.dropna(inplace=True)
+        # Check staff numbers only consists of numbers
+        df['staff_numbers'] = df['staff_numbers'].str.replace(r'[^0-9]', '', regex=True)
 
-        # Change column types to numeric
-        df['longitude'] = pd.to_numeric(df['longitude'], errors='coerce')
-        df['latitude'] = pd.to_numeric(df['latitude'], errors='coerce')
-
-        # Change column type to int
-        df['staff_numbers'] = pd.to_numeric(df['staff_numbers'], errors='coerce')
-        df.dropna(subset=['staff_numbers'], inplace=True)
-        df['staff_numbers'] = df['staff_numbers'].astype(int)
-
-        # Remove non-letter entries in locality
-        df = df[df['locality'].str.match(r'^[A-Za-z]+$', na=False)]
-
-        # Check opening date format
-        df['opening_date'] = pd.to_datetime(df['opening_date'], errors='coerce')
-        # Check for invalid date entries that were converted to NaT
-        if df['opening_date'].isna().any():
-            df = df.dropna(subset=['opening_date'])
-        # Reformat to yyyy-mm-dd
-        df['opening_date'] = df['opening_date'].dt.strftime('%Y-%m-%d')
+        # Remove entries with numbers in the 'locality' column
+        df = df[~df['locality'].str.contains(r'\d', regex=True)]
 
         # Remove invalid store types
-        valid_store_type = ['Super Store', 'Local', 'Outlet', 'Mall Kiosk']
+        valid_store_type = ['Super Store', 'Local', 'Outlet', 'Mall Kiosk', 'Web Portal']
         df = df[df['store_type'].isin(valid_store_type)]
 
         # Remove invalid country codes
@@ -163,8 +102,8 @@ class DataCleaning():
         df.loc[~df['is_match'], 'continent'] = df['correct_continent']
         df = df.drop(columns=['correct_continent', 'is_match'])
 
-        # Check no extra nulls have been produced
-        df.dropna(inplace=True)
+        # Replace N/A with nulls
+        df.replace('N/A', np.nan, inplace=True)
         
         return df
     
@@ -221,14 +160,6 @@ class DataCleaning():
         df['product_price'] = df['numeric_part']
         df.drop(columns=['numeric_part'], inplace=True)
 
-        # Check date added format
-        df['date_added'] = pd.to_datetime(df['date_added'], errors='coerce')
-        # Check for invalid date entries that were converted to NaT
-        if df['date_added'].isna().any():
-            df = df.dropna(subset=['date_added'])
-        # Reformat to yyyy-mm-dd
-        df['date_added'] = df['date_added'].dt.strftime('%Y-%m-%d')
-
         # Check no extra nulls have been produced
         df.dropna(inplace=True)
 
@@ -270,18 +201,9 @@ class DataCleaning():
         df.dropna(inplace=True)
 
         # Create a single date column
-        df['year'] = pd.to_numeric(df['year'], errors='coerce')
-        df['month'] = pd.to_numeric(df['month'], errors='coerce')
-        df['day'] = pd.to_numeric(df['day'], errors='coerce')
-        # Combine into a single date column
         df['date'] = pd.to_datetime(df[['year', 'month', 'day']], errors='coerce')
-        # Check for invalid date entries that were converted to NaT
-        if df['date'].isna().any():
-            df = df.dropna(subset=['date'])
         # Reformat to yyyy-mm-dd
         df['date'] = df['date'].dt.strftime('%Y-%m-%d')
-        # Drop columns
-        df = df.drop(columns=['day', 'month', 'year'])
 
         # Check timestamp format
         df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')

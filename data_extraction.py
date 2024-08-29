@@ -4,6 +4,7 @@ import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import boto3
 from io import StringIO, BytesIO
+import time
 
 
 class DataExtractor():
@@ -31,18 +32,26 @@ class DataExtractor():
             print(f"Failed to retrieve number of stores. Status code: {response.status_code}")
             return None
         
-    def get_store_data(self, url):
-        try:
-            response = requests.get(url, headers=self.headers)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Error retrieving store data from {url}: {e}")
-            return None
+    def get_store_data(self, url, retries=3, delay=2):
+        for attempt in range(retries):
+            try:
+                response = requests.get(url, headers=self.headers)
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.RequestException as e:
+                print(f"Error retrieving store data from {url}: {e}")
+                if response is not None:
+                    print(f"Response status code: {response.status_code}")
+                    print(f"Response text: {response.text}")
+                if attempt < retries - 1:
+                    time.sleep(delay)
+                    delay *= 2  # Exponential backoff
+                else:
+                    return None
 
     def retrieve_stores_data(self, store_endpoint, number_of_stores):
         stores_data = []
-        urls = [store_endpoint.format(store_number=i) for i in range(1, number_of_stores + 1)]
+        urls = [store_endpoint.format(store_number=i) for i in range(0, number_of_stores)]
         with ThreadPoolExecutor(max_workers=10) as executor:  # Adjust max_workers
             future_to_url = {executor.submit(self.get_store_data, url): url for url in urls}
             for future in as_completed(future_to_url):
