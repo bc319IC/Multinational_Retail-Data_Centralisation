@@ -6,15 +6,21 @@ import numpy as np
 class DataCleaning():
     
     def clean_user_data(self, df):
+        '''
+        Cleans the user data.
+
+        Parameters
+        ----------
+        df
+
+        Returns
+        -------
+        df
+        '''
         df = df.copy()
 
         # Drop column
         df = df.drop(columns=['index'])
-
-        # Convert NULL strings to NaN
-        df.replace('NULL', np.nan, inplace=True)
-        # Drop rows with null values
-        df.dropna(inplace=True)
         
         # Check email format
         email_pattern = r'^[\w\.\+\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-.]+$'
@@ -51,15 +57,21 @@ class DataCleaning():
     
 
     def clean_card_data(self, df):
+        '''
+        Cleans the card data.
+
+        Parameters
+        ----------
+        df
+
+        Returns
+        -------
+        df
+        '''
         df = df.copy()
 
-        # Convert NULL strings to NaN
-        df.replace('NULL', np.nan, inplace=True)
-        # Drop rows with null values
-        df.dropna(inplace=True)
-
         # Check card number contains only digits
-        df['card_number'] = df['card_number'].str.replace(r'[^0-9]', '', regex=True)
+        df['card_number'] = df['card_number'].astype(str).str.replace(r'[^0-9]', '', regex=True)
 
         # Remove invalid expiry dates
         expiry_pattern = r'^\d{2}/\d{2}$'
@@ -70,13 +82,24 @@ class DataCleaning():
     
 
     def clean_store_data(self, df):
+        '''
+        Cleans the store data.
+
+        Parameters
+        ----------
+        df
+
+        Returns
+        -------
+        df
+        '''
         df = df.copy()
 
         # Drop columns
         df = df.drop(columns=['index', 'lat'])
 
         # Check staff numbers only consists of numbers
-        df['staff_numbers'] = df['staff_numbers'].str.replace(r'[^0-9]', '', regex=True)
+        df['staff_numbers'] = df['staff_numbers'].astype(str).str.replace(r'[^0-9]', '', regex=True)
 
         # Remove entries with numbers in the 'locality' column
         df = df[~df['locality'].str.contains(r'\d', regex=True)]
@@ -109,7 +132,29 @@ class DataCleaning():
     
 
     def convert_product_weights(self, df):
+        '''
+        Converts the weights in the specified dataframe to kg.
+
+        Parameters
+        ----------
+        df
+
+        Returns
+        -------
+        df
+        '''
         def convert_weight(weight):
+            '''
+            Helper function for convert_product_weights function. Converts the values to kg.
+
+            Parameters
+            ----------
+            weight
+
+            Returns
+            -------
+            weight - in kg
+            '''
             # Convert to lowercase and remove spaces
             weight = str(weight).lower().replace(" ", "")
             # Handle different unit conversions
@@ -131,6 +176,17 @@ class DataCleaning():
     
 
     def clean_product_data(self, df):
+        '''
+        Cleans the product data.
+
+        Parameters
+        ----------
+        df
+
+        Returns
+        -------
+        df
+        '''
         df = df.copy()
 
         # Drop column
@@ -183,6 +239,17 @@ class DataCleaning():
     
 
     def clean_order_data(self, df):
+        '''
+        Cleans the order data.
+
+        Parameters
+        ----------
+        df
+
+        Returns
+        -------
+        df
+        '''
         df = df.copy()
 
         # Drop columns
@@ -195,6 +262,17 @@ class DataCleaning():
     
 
     def clean_date_data(self, df):
+        '''
+        Cleans the date data.
+
+        Parameters
+        ----------
+        df
+
+        Returns
+        -------
+        df
+        '''
         df = df.copy()
 
         # Drop rows with null values

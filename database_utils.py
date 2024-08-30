@@ -49,10 +49,34 @@ class DatabaseConnector():
         return engine
 
     def list_db_tables(self):
+        '''
+        Lists the tables retrieved using the SQLAlechemy engine.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        tables
+        '''
         engine = self.init_db_engine()
         inspector = inspect(engine)
         tables = inspector.get_table_names()
         return tables
     
     def upload_to_db(self, df, table_name, local_db_engine, dtype_dic):
+        '''
+        Uploads the dataframe to the local postgres server.
+
+        Parameters
+        ----------
+        table_name - name of the table to be uploaded.
+        local_db_engine - the SQLAlechemy engine to be used.
+        dtype=dtype_dic - a dictionary of the column types of the dataframe when converted to SQL.
+
+        Returns
+        -------
+        tables
+        '''
         df.to_sql(table_name, local_db_engine, if_exists='replace', index=False, dtype=dtype_dic)
