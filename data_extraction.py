@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import boto3
 from io import StringIO, BytesIO
 import time
+import yaml
 
 
 class DataExtractor():
@@ -21,7 +22,10 @@ class DataExtractor():
         -------
         None
         '''
-        self.headers = {'x-api-key': "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"}
+        file_path = "api_key.yaml"
+        with open(file_path, 'r') as file:
+            api_key = yaml.safe_load(file)
+        self.headers = {'x-api-key': api_key['api_key']}
 
     def read_rds_table(self, db_connector, table_name):
         '''
@@ -122,7 +126,7 @@ class DataExtractor():
         # Loop through each store
         urls = [store_endpoint.format(store_number=i) for i in range(0, number_of_stores)]
         # Speed up process with multi threading
-        with ThreadPoolExecutor(max_workers=10) as executor:  # Adjust max_workers
+        with ThreadPoolExecutor(max_workers=1) as executor:  # Adjust max_workers
             future_to_url = {executor.submit(self.get_store_data, url): url for url in urls}
             # Retain order of completion not submition
             for future in as_completed(future_to_url):
