@@ -11,7 +11,8 @@ Development of a star base schema for the data of a multinational company starti
 
 ## Installation
 ```bash
-clone https://github.com/bc319IC/multinational-retail-data-centralisation271.git` ``` 
+clone https://github.com/bc319IC/multinational-retail-data-centralisation271.git`
+```
 for local access.
 
 
