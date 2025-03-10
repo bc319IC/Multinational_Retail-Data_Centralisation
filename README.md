@@ -21,9 +21,9 @@ local database for querying. The structure of the star schema can be seen below.
             <li><a href="#data_cleaning.py">data_cleaning.py</a></li>
           </ul>
         </li>
-          <li><a href="#set_primary_keys.sql">set_primary_keys.sql</a></li>
-          <li><a href="#set_foreign_keys.sql">set_foreign_keys.sql</a></li>
-          <li><a href="#m4-folder">m4 folder</a></li>
+        <li><a href="#set_primary_keys.sql">set_primary_keys.sql</a></li>
+        <li><a href="#set_foreign_keys.sql">set_foreign_keys.sql</a></li>
+        <li><a href="#m4-folder">m4 folder</a></li>
       </ul>
     </li>
     <li><a href="#License">License</a></li>
