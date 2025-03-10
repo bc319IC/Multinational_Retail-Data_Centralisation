@@ -66,5 +66,5 @@ Contains the code to set the necessary columns as foreign keys.
 ### m4 folder
 Contains SQL queries that should be self explanatory by name.
 
-## License Information
+## License
 This project is licensed under the terms of the MIT license.
