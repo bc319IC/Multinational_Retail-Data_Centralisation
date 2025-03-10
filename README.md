@@ -1,5 +1,7 @@
 # Multinational Retail - Data Centralisation
-Development of a star schema for the data of a multinational company starting from the extraction of data from different sources, cleaning the data, and then uploading to a local database for querying. The structure of the star schema can be seen below.
+Development of a star schema for the data of a multinational company starting from the 
+extraction of data from different sources, cleaning the data, and then uploading to a 
+local database for querying. The structure of the star schema can be seen below.
 
 ![star base schema](Images/star.png)
 
@@ -35,7 +37,10 @@ clone https://github.com/bc319IC/multinational-retail-data-centralisation271.git
 ```
 
 ## Usage
-The Jupyter Notebook file `retail.ipynb` has been pre-run so the process of data extraction from different sources, the cleaning of the data, and the uploading of the data to a local postgres database can be viewed. The two SQL files `set_primary_keys.sql` and `set_foreign_keys.sql` are to be run for the queries in the m4 folder to work.
+The Jupyter Notebook file `retail.ipynb` has been pre-run so the process of data extraction from 
+different sources, the cleaning of the data, and the uploading of the data to a local postgres 
+database can be viewed. The two SQL files `set_primary_keys.sql` and `set_foreign_keys.sql` are 
+to be run for the queries in the m4 folder to work.
 
 ## File Structure
 
