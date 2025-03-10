@@ -33,8 +33,6 @@ Clone for local access.
 ```sh
 clone https://github.com/bc319IC/multinational-retail-data-centralisation271.git`
 ```
-for local access.
-
 
 ## Usage
 Run the appropraite files in the following section regarding their descriptions.
