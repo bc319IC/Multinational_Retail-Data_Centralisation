@@ -35,12 +35,13 @@ clone https://github.com/bc319IC/multinational-retail-data-centralisation271.git
 ```
 
 ## Usage
-Run the appropraite files in the following section regarding their descriptions.
+The Jupyter Notebook file `retail.ipynb` has been pre-run so the process of data extraction from different sources, the cleaning of the data, and the uploading of the data to a local postgres database can be viewed. The two SQL files `set_primary_keys.sql` and `set_foreign_keys.sql` are to be run for the queries in the m4 folder to work.
 
 ## File Structure
 
 ### retail.ipynb <a id="retail.ipynb"></a>
-Run all in retail.ipynb for the data extraction of each table using different methods due to different sources, followed by the cleaning of the data, and uploading to the local postgres database.
+This is the main Juypter Notebook file of this repository. This file will only be able to re-run
+if valid credentials and api key are supplied.
 
 #### database_utils.py <a id="database_utils.py"></a>
 Contains the class for connecting to the local postgres database.
@@ -59,7 +60,6 @@ Contains the code to set the necessary columns as foreign keys.
 
 ### m4 folder
 Contains SQL queries that should be self explanatory by name.
-
 
 ## License Information
 This project is licensed under the terms of the MIT license.
