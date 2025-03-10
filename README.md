@@ -44,7 +44,7 @@ Run the appropraite files in the following section regarding their descriptions.
 ### retail.ipynb <a id="retail.ipynb"></a>
 Run all in retail.ipynb for the data extraction of each table using different methods due to different sources, followed by the cleaning of the data, and uploading to the local postgres database.
 
-#### database_utils.py <a id="database_utils"></a>
+#### database_utils.py <a id="database_utils.py"></a>
 Contains the class for connecting to the local postgres database.
 
 #### data_extraction.py <a id="data_extraction.py"></a>
