@@ -33,7 +33,7 @@ local database for querying. The structure of the star schema can be seen below.
 ## Installation
 Clone for local access.
 ```sh
-clone https://github.com/bc319IC/multinational-retail-data-centralisation271.git`
+git clone https://github.com/bc319IC/multinational-retail-data-centralisation271.git
 ```
 
 ## Usage
