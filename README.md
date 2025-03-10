@@ -1,4 +1,4 @@
-# multinational-retail-data-centralisation271
+# Multinational Retail - Data Centralisation
 Development of a star schema for the data of a multinational company starting from the extraction of data from different sources, cleaning the data, and then uploading to a local database for querying. The structure of the star schema can be seen below.
 
 ![star base schema](Images/star.png)
